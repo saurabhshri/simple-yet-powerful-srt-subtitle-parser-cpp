@@ -17,6 +17,9 @@
 #include <vector>
 #include <regex>
 
+/**** Class definitions ****/
+
+
 class SubtitleWord
 {
 private:
@@ -31,60 +34,60 @@ public:
 class SubtitleItem
 {
 private:
-    long int _startTime; //in milliseconds
+    long int _startTime;                    //in milliseconds
     long int _endTime;
-    std::string _text;  // actual line, as present in subtitle file
-    long int timeMSec(std::string value);
+    std::string _text;                      //actual line, as present in subtitle file
+    long int timeMSec(std::string value);   //converts time string into ms
 
-    std::string _startTimeString;
+    std::string _startTimeString;           //time as in srt format
     std::string _endTimeString;
-    bool _ignore;
-    std::string _justDialogue;
-    int _speakerCount;
-    std::vector<std::string> _speaker;
-    int _nonDialogueCount;
-    std::vector<std::string> _nonDialogue;
-    int _styleTagCount;
-    std::vector<std::string> _styleTag;
-    void extractInfo(bool keepHTML = 0, bool doNotIgnoreNonDialogues = 0,  bool doNotRemoveSpeakerNames = 0);
+    bool _ignore;                           //should subtitle be ignore; used when the subtitle is empty after processing
+    std::string _justDialogue;              //contains processed subtitle - stripped style, non dialogue text removal etc.
+    int _speakerCount;                      //count of number of speakers
+    std::vector<std::string> _speaker;      //list of speakers in a single subtitle
+    int _nonDialogueCount;                  //count of non spoken words in a subtitle
+    std::vector<std::string> _nonDialogue;  //list of non dialogue words, e.g. (applause)
+    int _styleTagCount;                     //count of style tags in a single subtitle
+    std::vector<std::string> _styleTag;     //list of style tags in that subtitle
+    void extractInfo(bool keepHTML = 0, bool doNotIgnoreNonDialogues = 0,  bool doNotRemoveSpeakerNames = 0);   //process subtitle
 public:
-    long int getStartTime() const;
-    long int getEndTime() const;
-    std::string getText() const;
+    long int getStartTime() const;          //returns starting time in ms
+    long int getEndTime() const;            //returns ending time in ms
+    std::string getText() const;            //returns subtitle text as present in .srt file
 
-    std::string getStartTimeString() const;
-    std::string getEndTimeString() const;
-    bool getIgnoreStatus() const;
-    std::string getDialogue(bool keepHTML = 0, bool doNotIgnoreNonDialogues = 0,  bool doNotRemoveSpeakerNames = 0);
-    int getSpeakerCount() const;
-    int getNonDialogueCount() const;
-    int getStyleTagCount() const;
-    std::vector<std::string> getSpeakerNames();
-    std::vector<std::string> getNonDialogueWords();
-    std::vector<std::string> getStyleTags();
+    std::string getStartTimeString() const; //returns sarting time as present in .srt file
+    std::string getEndTimeString() const;   //returns ending time as present in .srt file
+    bool getIgnoreStatus() const;           //returns status, whether the subtitle is ignorable or not after processing
+    std::string getDialogue(bool keepHTML = 0, bool doNotIgnoreNonDialogues = 0,  bool doNotRemoveSpeakerNames = 0); //returns processed subtitle
+    int getSpeakerCount() const;            //return speaker count
+    int getNonDialogueCount() const;        //return non dialogue words count
+    int getStyleTagCount() const;           //return style tags count
+    std::vector<std::string> getSpeakerNames(); //return string vector of speaker names
+    std::vector<std::string> getNonDialogueWords(); //return string vector of non dialogue words
+    std::vector<std::string> getStyleTags();    //return string vector of style tags
 
 
-    void setStartTime(long int startTime);
-    void setEndTime(long int endTime);
-    void setText(std::string text);
+    void setStartTime(long int startTime);  //set starting time
+    void setEndTime(long int endTime);      //set ending time
+    void setText(std::string text);         //set subtitle text
 
     SubtitleItem(void);
     SubtitleItem(std::string startTime,std::string endTime, std::string text, bool ignore = false,
                  std::string justDialogue = "" , int speakerCount = 0, int nonDialogueCount = 0,
                  int styleTagCount = 0, std::vector<std::string> speaker = std::vector<std::string>(),
                  std::vector<std::string> nonDialogue = std::vector<std::string>(),
-                 std::vector<std::string> styleTags = std::vector<std::string>());
+                 std::vector<std::string> styleTags = std::vector<std::string>());  //default constructor
     ~SubtitleItem(void);
 };
 
 class SubtitleParser
 {
 protected:
-    std::vector<SubtitleItem*> _subtitles;
-    std::string _fileName;
+    std::vector<SubtitleItem*> _subtitles;              //stores subtitles
+    std::string _fileName;                              //supplied filename
     virtual void parse(std::string fileName) = 0;
 public:
-    virtual std::vector<SubtitleItem*> getSubtitles();
+    virtual std::vector<SubtitleItem*> getSubtitles();  //returns subtitles
     std::string getFileData();
     SubtitleParser(void);
     virtual ~SubtitleParser(void);
@@ -110,6 +113,10 @@ public:
 };
 
 
+/**** Function definitions ****/
+
+//1. SubtitleParserFactory class 
+
 SubtitleParserFactory::SubtitleParserFactory(std::string fileName)
 {
     _fileName = fileName;
@@ -117,19 +124,21 @@ SubtitleParserFactory::SubtitleParserFactory(std::string fileName)
 
 SubtitleParser* SubtitleParserFactory::getParser()
 {
-    return new SubRipParser(_fileName);
+    return new SubRipParser(_fileName);                 //creates and returns SubRipParser obj
 }
 
 SubtitleParserFactory::~SubtitleParserFactory(void)
 {
 }
 
+//2. SubtitleParser class
+
 std::vector<SubtitleItem*> SubtitleParser::getSubtitles()
 {
     return _subtitles;
 }
 
-std::string SubtitleParser::getFileData()
+std::string SubtitleParser::getFileData()           //returns whole read file i.e. contents of input.srt
 {
     std::ifstream infile(_fileName);
     std::string allData = "";
@@ -152,12 +161,15 @@ SubtitleParser::~SubtitleParser(void)
 {
 }
 
+//3. SubRipParser class
+
 SubRipParser::SubRipParser(void)
 {
 }
 
-void SubRipParser::parse(std::string fileName)
+void SubRipParser::parse(std::string fileName)      //srt parser
 {
+    //TODO : Try alternative for regex based approach
     try
     {
         std::string szRegex = "([0-9]+)\n([0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3}) --> ([0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3})";
@@ -204,6 +216,8 @@ SubRipParser::~SubRipParser(void)
             delete _subtitles[i];
     }
 }
+
+//4. SubtitleItem class
 
 SubtitleItem::SubtitleItem(void)
 {
@@ -292,7 +306,7 @@ bool SubtitleItem::getIgnoreStatus() const
 
 }
 
-void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogues, bool doNotRemoveSpeakerNames)
+void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogues, bool doNotRemoveSpeakerNames)   //process subtitle
 {
     std::string output = _text;
 
@@ -313,7 +327,7 @@ void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogues, bool
          */
 
         int countP = 0;
-        for(char& c : output)
+        for(char& c : output) // replacing <...> with ~~~~
         {
             if(c=='<')
             {
@@ -351,7 +365,7 @@ void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogues, bool
          */
 
         int countP = 0;
-        for(char& c : output)
+        for(char& c : output)   // replacing (...) with ~~~~
         {
             if(c=='(')
             {
@@ -389,7 +403,7 @@ void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogues, bool
 
                 for(int j=i; j>0;j--)
                 {
-                    if(output[j]== ' ' || output[j]== '\n' )
+                    if(output[j]== ' ' || output[j]== '\n' ) //TODO: First & Last Name cnsideration
                     {
                         prevSpaceIndex = j;
                         break;
@@ -411,8 +425,7 @@ void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogues, bool
 
     }
 
-    output.erase(std::remove(output.begin(), output.end(), '~'), output.end());
-    //std::cout<<output<<"\n";
+    output.erase(std::remove(output.begin(), output.end(), '~'), output.end()); // deleting all ~
 
     _justDialogue = output;
 
@@ -456,6 +469,8 @@ SubtitleItem::~SubtitleItem(void)
 {
 
 }
+
+//5. SubtitleWordclass
 
 SubtitleWord::SubtitleWord(void)
 {
