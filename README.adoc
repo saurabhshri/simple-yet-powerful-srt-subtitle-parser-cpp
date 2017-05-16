@@ -45,7 +45,7 @@ Syntax:
 
 
 
-[cols="2,2,3,5"]
+[cols="2,1,2,5"]
 |===
 | Class | Return Type | Function | Description
 
