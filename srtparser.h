@@ -17,6 +17,16 @@
 #include <vector>
 #include <regex>
 
+std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
+    std::stringstream ss(s);
+    std::string item;
+
+    while (getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+    return elems;
+}
+
 /**** Class definitions ****/
 
 
@@ -39,6 +49,7 @@ private:
     std::string _text;                      //actual line, as present in subtitle file
     long int timeMSec(std::string value);   //converts time string into ms
 
+    int _subNo;                              //subtitle number
     std::string _startTimeString;           //time as in srt format
     std::string _endTimeString;
     bool _ignore;                           //should subtitle be ignore; used when the subtitle is empty after processing
@@ -55,6 +66,7 @@ public:
     long int getEndTime() const;            //returns ending time in ms
     std::string getText() const;            //returns subtitle text as present in .srt file
 
+    int getSubNo() const;              //returns subtitle number
     std::string getStartTimeString() const; //returns sarting time as present in .srt file
     std::string getEndTimeString() const;   //returns ending time as present in .srt file
     bool getIgnoreStatus() const;           //returns status, whether the subtitle is ignorable or not after processing
@@ -72,7 +84,7 @@ public:
     void setText(std::string text);         //set subtitle text
 
     SubtitleItem(void);
-    SubtitleItem(std::string startTime,std::string endTime, std::string text, bool ignore = false,
+    SubtitleItem(int subNo, std::string startTime,std::string endTime, std::string text, bool ignore = false,
                  std::string justDialogue = "" , int speakerCount = 0, int nonDialogueCount = 0,
                  int styleTagCount = 0, std::vector<std::string> speaker = std::vector<std::string>(),
                  std::vector<std::string> nonDialogue = std::vector<std::string>(),
@@ -115,7 +127,7 @@ public:
 
 /**** Function definitions ****/
 
-//1. SubtitleParserFactory class 
+//1. SubtitleParserFactory class
 
 SubtitleParserFactory::SubtitleParserFactory(std::string fileName)
 {
@@ -169,6 +181,73 @@ SubRipParser::SubRipParser(void)
 
 void SubRipParser::parse(std::string fileName)      //srt parser
 {
+
+    std::ifstream infile(fileName);
+    std::string line, start, end, completeLine = "", dur = "";
+    std::vector<std::string> individualWords;
+    int subNo, turn = 0;
+
+    /*
+     * turn = 0 -> Add subtitle number
+     * turn = 1 -> Add string to dur
+     * turn > 1 -> Add string to completeLine
+     */
+
+    while (std::getline(infile, line))
+    {
+        //line.erase(remove(line.begin(), line.end(), '\n'), line.end());
+
+        if (line.compare(""))
+        {
+            if(!turn)
+            {
+                subNo=atoi(line.c_str());
+                turn++;
+                continue;
+            }
+
+            if (line.find("-->") != std::string::npos)
+            {
+                dur += line;
+
+                std::vector<std::string> srtTime;
+                srtTime = split(dur, ' ', srtTime);
+                start = srtTime[0];
+                end = srtTime[2];
+
+            }
+            else
+            {
+                if (completeLine != "")
+                    completeLine += " ";
+
+                completeLine += line;
+            }
+
+            turn++;
+
+            individualWords = split(completeLine, ' ', individualWords);
+
+            for(std::string s : individualWords)
+                std::cout<<" ==== "<<s<<std::endl;
+
+            individualWords.clear();
+        }
+
+        else
+        {
+            turn = 0;
+            _subtitles.push_back(new SubtitleItem(subNo,start,end,completeLine));
+            completeLine = dur = "";
+        }
+
+        if(infile.eof())
+        {
+            _subtitles.push_back(new SubtitleItem(subNo,start,end,completeLine));
+        }
+    }
+
+    /*
     //TODO : Try alternative for regex based approach
     try
     {
@@ -200,6 +279,8 @@ void SubRipParser::parse(std::string fileName)      //srt parser
         // Syntax error in the regular expression
         std::cout<<e.what()<<std::endl;
     }
+
+    */
 }
 
 SubRipParser::SubRipParser(std::string fileName)
@@ -223,7 +304,7 @@ SubtitleItem::SubtitleItem(void)
 {
 }
 
-SubtitleItem::SubtitleItem(std::string startTime,std::string endTime, std::string text, bool ignore,
+SubtitleItem::SubtitleItem(int subNo, std::string startTime,std::string endTime, std::string text, bool ignore,
                            std::string justDialogue, int speakerCount, int nonDialogueCount,
                            int styleTagCount, std::vector<std::string> speaker, std::vector<std::string> nonDialogue,
                            std::vector<std::string> styleTags)
@@ -232,6 +313,7 @@ SubtitleItem::SubtitleItem(std::string startTime,std::string endTime, std::strin
     _endTime = timeMSec(endTime);
     _text = text;
 
+    _subNo = subNo;
     _startTimeString = startTime;
     _endTimeString = endTime;
     _ignore = ignore;
@@ -285,7 +367,10 @@ void SubtitleItem::setText(std::string text)
 {
     _text = text;
 }
-
+int SubtitleItem::getSubNo() const
+{
+    return _subNo;
+}
 std::string SubtitleItem::getStartTimeString() const
 {
     return _startTimeString;
