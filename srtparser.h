@@ -16,6 +16,7 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include <iterator>
 
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
     std::stringstream ss(s);
@@ -474,6 +475,8 @@ void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogues, bool
         }
     }
 
+    output.erase(std::remove(output.begin(), output.end(), '~'), output.end()); // deleting all ~
+
     //Extracting speaker names
     if(!doNotRemoveSpeakerNames)
     {
@@ -567,9 +570,14 @@ void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogues, bool
 
     }
 
-    output.erase(std::remove(output.begin(), output.end(), '~'), output.end()); // deleting all ~
+    // removing more than one whitespaces with one space
+    unique_copy (output.begin(), output.end(), std::back_insert_iterator<std::string>(_justDialogue), [](char a,char b)
+    { return isspace(a) && isspace(b);});
 
-    _justDialogue = output;
+    // trimming whitespaces
+    const char* whiteSpaces = " \t\n\r\f\v";
+    _justDialogue.erase(0, _justDialogue.find_first_not_of(whiteSpaces));
+    _justDialogue.erase(0, _justDialogue.find_last_not_of(whiteSpaces) + 1);
 
     if(_justDialogue.empty() || _justDialogue == " ")
         _ignore = true;
