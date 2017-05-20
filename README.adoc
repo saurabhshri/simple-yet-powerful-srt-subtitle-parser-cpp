@@ -128,6 +128,20 @@ By default (0,0,0) values are passed.
 _E.g.: ``std::string text = sub->getDialogue();``_
 
 | SubtitleItem
+| int
+| `getWordCount()`
+| Returns the count of number of words present in the subtitle dialogue.
+
+_E.g.: ``int wordCount = sub->getWordCount();``_
+
+| SubtitleItem
+| std::vector<std::string>
+| `getIndividualWords()`
+| Returns string vector of individual words present in subtitle.
+
+_E.g.: ``std::vector<std::string> words = sub->getIndividualWords();``_
+
+| SubtitleItem
 | bool
 | `getIgnoreStatus()`
 | Returns the ignore status. Returns true, if the _justDialogue field i.e. subtitle after processing is empty.
@@ -200,5 +214,3 @@ Built upon a MIT licensed simple subtitle-parser called LibSub-Parser by Oleksii
 The original parser had 3 major functions : getStartTime(), getEndTime() and getText(). 
 
 Rest work done by Saurabh Shrivastava, originally for using this in his https://saurabhshri.github.io/2017/05/gsoc/creating-a-full-blown-srt-subtitle-parser[GSoC project].
-
-
