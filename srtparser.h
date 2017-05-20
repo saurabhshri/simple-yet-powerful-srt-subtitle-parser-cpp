@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <iterator>
 
+//funtion for splitting sentences based on supplied delimiter
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
     std::stringstream ss(s);
     std::string item;
@@ -239,46 +240,11 @@ void SubRipParser::parse(std::string fileName)      //srt parser
             completeLine = timeLine = "";
         }
 
-        if(infile.eof())
+        if(infile.eof())    //insert last remaining subtitle
         {
             _subtitles.push_back(new SubtitleItem(subNo,start,end,completeLine));
         }
     }
-
-    /*
-    //TODO : Try alternative for regex based approach
-    try
-    {
-        std::string szRegex = "([0-9]+)\n([0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3}) --> ([0-9]{2}:[0-9]{2}:[0-9]{2},[0-9]{3})";
-        std::regex subRegex (szRegex);
-        std::string fileData = getFileData();
-        // default constructor = end-of-sequence:
-        std::regex_token_iterator<std::string::iterator> rend;
-        int submatches[] = {-1,1,2,3};
-        std::regex_token_iterator<std::string::iterator> c ( fileData.begin(), fileData.end(), subRegex, submatches );
-        std::deque<std::string> match;
-        while (c!=rend)
-        {
-            match.push_back(*c++);
-        }
-        match.pop_front();
-        if(match.size()%4)
-        {
-            std::cout<<"File is incorrect!";
-            return;
-        }
-
-        for(int i=0;i != match.size();i+=4)
-        {
-            _subtitles.push_back(new SubtitleItem(match[i+1],match[i+2],match[i+3]));
-        }
-    }
-    catch(std::regex_error& e) {
-        // Syntax error in the regular expression
-        std::cout<<e.what()<<std::endl;
-    }
-
-    */
 }
 
 SubRipParser::SubRipParser(std::string fileName)
@@ -324,13 +290,16 @@ SubtitleItem::SubtitleItem(int subNo, std::string startTime,std::string endTime,
     _styleTag = styleTags;
     _nonDialogue = nonDialogue;
     _word = word;
+
+    extractInfo();
 }
 
 long int SubtitleItem::timeMSec(std::string value)
 {
     std::vector<std::string> t, secs;
-    t = split(value, ':', t);
     int hours, mins, seconds, milliseconds;
+
+    t = split(value, ':', t);
     hours = atoi(t[0].c_str());
     mins = atoi(t[1].c_str());
 
@@ -398,11 +367,6 @@ void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogues, bool
     //stripping HTML tags
     if(!keepHTML)
     {
-        /* REGEX Based approach; <! C++ 11
-        std::regex tags("<[^<]*>");
-        std::regex_replace(std::back_inserter(output), _text.begin(), _text.end(), tags, "");
-        */
-
         /*
          * TODO : Before erasing, extract the words.
          * std::vector<std::string> getStyleTags();
@@ -493,9 +457,6 @@ void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogues, bool
                 if(output[i-1] == ' ')
                     spaceBeforeColon = 2;
 
-
-
-
                 /*
                 Possible Cases :
 
@@ -574,7 +535,7 @@ void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogues, bool
     unique_copy (output.begin(), output.end(), std::back_insert_iterator<std::string>(_justDialogue),
                  [](char a,char b)
                  {
-                    return isspace(a) && isspace(b);
+                     return isspace(a) && isspace(b);
                  });
 
     // trimming whitespaces
@@ -587,7 +548,7 @@ void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogues, bool
 
     else
     {
-        _word = split(_justDialogue, ' ', _word);
+        _word = split(_justDialogue, ' ', _word); //extracting individual words
         _wordCount = _word.size();
     }
 }
