@@ -571,13 +571,16 @@ void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogues, bool
     }
 
     // removing more than one whitespaces with one space
-    unique_copy (output.begin(), output.end(), std::back_insert_iterator<std::string>(_justDialogue), [](char a,char b)
-    { return isspace(a) && isspace(b);});
+    unique_copy (output.begin(), output.end(), std::back_insert_iterator<std::string>(_justDialogue),
+                 [](char a,char b)
+                 {
+                    return isspace(a) && isspace(b);
+                 });
 
     // trimming whitespaces
     const char* whiteSpaces = " \t\n\r\f\v";
     _justDialogue.erase(0, _justDialogue.find_first_not_of(whiteSpaces));
-    _justDialogue.erase(0, _justDialogue.find_last_not_of(whiteSpaces) + 1);
+    _justDialogue.erase(_justDialogue.find_last_not_of(whiteSpaces) + 1);
 
     if(_justDialogue.empty() || _justDialogue == " ")
         _ignore = true;
