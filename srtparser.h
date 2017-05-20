@@ -15,7 +15,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include <regex>
+//#include <regex>
 
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
     std::stringstream ss(s);
@@ -183,21 +183,21 @@ void SubRipParser::parse(std::string fileName)      //srt parser
 {
 
     std::ifstream infile(fileName);
-    std::string line, start, end, completeLine = "", dur = "";
+    std::string line, start, end, completeLine = "", timeLine = "";
     std::vector<std::string> individualWords;
     int subNo, turn = 0;
 
     /*
      * turn = 0 -> Add subtitle number
-     * turn = 1 -> Add string to dur
+     * turn = 1 -> Add string to timeLine
      * turn > 1 -> Add string to completeLine
      */
 
     while (std::getline(infile, line))
     {
-        //line.erase(remove(line.begin(), line.end(), '\n'), line.end());
+        //line.erase(remove(line.begin(), line.end(), '\r'), line.end());
 
-        if (line.compare(""))
+        if (line.compare("")) 
         {
             if(!turn)
             {
@@ -208,10 +208,10 @@ void SubRipParser::parse(std::string fileName)      //srt parser
 
             if (line.find("-->") != std::string::npos)
             {
-                dur += line;
+                timeLine += line;
 
                 std::vector<std::string> srtTime;
-                srtTime = split(dur, ' ', srtTime);
+                srtTime = split(timeLine, ' ', srtTime);
                 start = srtTime[0];
                 end = srtTime[2];
 
@@ -228,8 +228,8 @@ void SubRipParser::parse(std::string fileName)      //srt parser
 
             individualWords = split(completeLine, ' ', individualWords);
 
-            for(std::string s : individualWords)
-                std::cout<<" ==== "<<s<<std::endl;
+//            for(std::string s : individualWords)
+//                std::cout<<" ==== "<<s<<std::endl;
 
             individualWords.clear();
         }
@@ -238,7 +238,7 @@ void SubRipParser::parse(std::string fileName)      //srt parser
         {
             turn = 0;
             _subtitles.push_back(new SubtitleItem(subNo,start,end,completeLine));
-            completeLine = dur = "";
+            completeLine = timeLine = "";
         }
 
         if(infile.eof())
@@ -328,17 +328,17 @@ SubtitleItem::SubtitleItem(int subNo, std::string startTime,std::string endTime,
 
 long int SubtitleItem::timeMSec(std::string value)
 {
-    std::string szRegex = "([0-9]+):([0-9]{2}):([0-9]{2}),([0-9]{3})";
-    std::regex subRegex (szRegex);
-    int submatches[] = {1,2,3,4};
-    std::regex_token_iterator<std::string::iterator> c ( value.begin(), value.end(), subRegex, submatches );
-    std::regex_token_iterator<std::string::iterator> rend;
-    std::vector<std::string> parts;
-    while (c!=rend)
-    {
-        parts.push_back(*c++);
-    }
-    return atoi(parts[0].c_str()) * 3600000 + atoi(parts[1].c_str()) * 60000 + atoi(parts[2].c_str()) * 1000 + atoi(parts[3].c_str());
+    std::vector<std::string> t, secs;
+    t = split(value, ':', t);
+    int hours, mins, seconds, milliseconds;
+    hours = atoi(t[0].c_str());
+    mins = atoi(t[1].c_str());
+
+    secs = split(t[2], ',', secs);
+    seconds = atoi(secs[0].c_str());
+    milliseconds = atoi(secs[1].c_str());
+    
+    return hours * 3600000 + mins * 60000 + seconds * 1000 + milliseconds;
 }
 
 long int SubtitleItem::getStartTime() const
