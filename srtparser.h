@@ -58,6 +58,8 @@ private:
     std::vector<std::string> _speaker;      //list of speakers in a single subtitle
     int _nonDialogueCount;                  //count of non spoken words in a subtitle
     std::vector<std::string> _nonDialogue;  //list of non dialogue words, e.g. (applause)
+    int _wordCount;                         //number of words in _justDialogue
+    std::vector<std::string> _word;         //list of words in dialogue
     int _styleTagCount;                     //count of style tags in a single subtitle
     std::vector<std::string> _styleTag;     //list of style tags in that subtitle
     void extractInfo(bool keepHTML = 0, bool doNotIgnoreNonDialogues = 0,  bool doNotRemoveSpeakerNames = 0);   //process subtitle
@@ -74,6 +76,8 @@ public:
     int getSpeakerCount() const;            //return speaker count
     int getNonDialogueCount() const;        //return non dialogue words count
     int getStyleTagCount() const;           //return style tags count
+    int getWordCount() const;               //return words count
+    std::vector<std::string> getIndividualWords();    // return string vector of individual words
     std::vector<std::string> getSpeakerNames(); //return string vector of speaker names
     std::vector<std::string> getNonDialogueWords(); //return string vector of non dialogue words
     std::vector<std::string> getStyleTags();    //return string vector of style tags
@@ -86,9 +90,10 @@ public:
     SubtitleItem(void);
     SubtitleItem(int subNo, std::string startTime,std::string endTime, std::string text, bool ignore = false,
                  std::string justDialogue = "" , int speakerCount = 0, int nonDialogueCount = 0,
-                 int styleTagCount = 0, std::vector<std::string> speaker = std::vector<std::string>(),
+                 int styleTagCount = 0, int wordCount = 0, std::vector<std::string> speaker = std::vector<std::string>(),
                  std::vector<std::string> nonDialogue = std::vector<std::string>(),
-                 std::vector<std::string> styleTags = std::vector<std::string>());  //default constructor
+                 std::vector<std::string> styleTags = std::vector<std::string>(),
+                 std::vector<std::string> word = std::vector<std::string>());  //default constructor
     ~SubtitleItem(void);
 };
 
@@ -184,7 +189,6 @@ void SubRipParser::parse(std::string fileName)      //srt parser
 
     std::ifstream infile(fileName);
     std::string line, start, end, completeLine = "", timeLine = "";
-    std::vector<std::string> individualWords;
     int subNo, turn = 0;
 
     /*
@@ -225,13 +229,6 @@ void SubRipParser::parse(std::string fileName)      //srt parser
             }
 
             turn++;
-
-            individualWords = split(completeLine, ' ', individualWords);
-
-//            for(std::string s : individualWords)
-//                std::cout<<" ==== "<<s<<std::endl;
-
-            individualWords.clear();
         }
 
         else
@@ -306,8 +303,8 @@ SubtitleItem::SubtitleItem(void)
 
 SubtitleItem::SubtitleItem(int subNo, std::string startTime,std::string endTime, std::string text, bool ignore,
                            std::string justDialogue, int speakerCount, int nonDialogueCount,
-                           int styleTagCount, std::vector<std::string> speaker, std::vector<std::string> nonDialogue,
-                           std::vector<std::string> styleTags)
+                           int styleTagCount, int wordCount, std::vector<std::string> speaker, std::vector<std::string> nonDialogue,
+                           std::vector<std::string> styleTags, std::vector<std::string> word)
 {
     _startTime = timeMSec(startTime);
     _endTime = timeMSec(endTime);
@@ -320,10 +317,12 @@ SubtitleItem::SubtitleItem(int subNo, std::string startTime,std::string endTime,
     _justDialogue = justDialogue;
     _speakerCount = speakerCount;
     _nonDialogueCount = nonDialogueCount;
+    _wordCount = wordCount;
     _speaker = speaker;
     _styleTagCount = styleTagCount;
     _styleTag = styleTags;
     _nonDialogue = nonDialogue;
+    _word = word;
 }
 
 long int SubtitleItem::timeMSec(std::string value)
@@ -575,6 +574,11 @@ void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogues, bool
     if(_justDialogue.empty() || _justDialogue == " ")
         _ignore = true;
 
+    else
+    {
+        _word = split(_justDialogue, ' ', _word);
+        _wordCount = _word.size();
+    }
 }
 
 std::string SubtitleItem::getDialogue(bool keepHTML, bool doNotIgnoreNonDialogues,  bool doNotRemoveSpeakerNames)
@@ -596,6 +600,10 @@ int SubtitleItem::getStyleTagCount() const
 {
     return _styleTagCount;
 }
+int SubtitleItem::getWordCount() const
+{
+    return _wordCount;
+}
 std::vector<std::string> SubtitleItem::getSpeakerNames()
 {
     return _speaker;
@@ -603,6 +611,10 @@ std::vector<std::string> SubtitleItem::getSpeakerNames()
 std::vector<std::string> SubtitleItem::getNonDialogueWords()
 {
     return _nonDialogue;
+}
+std::vector<std::string> SubtitleItem::getIndividualWords()
+{
+    return _word;
 }
 std::vector<std::string> SubtitleItem::getStyleTags()
 {
