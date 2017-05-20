@@ -15,7 +15,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-//#include <regex>
+#include <algorithm>
 
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
     std::stringstream ss(s);
@@ -197,7 +197,7 @@ void SubRipParser::parse(std::string fileName)      //srt parser
     {
         //line.erase(remove(line.begin(), line.end(), '\r'), line.end());
 
-        if (line.compare("")) 
+        if (line.compare(""))
         {
             if(!turn)
             {
@@ -337,7 +337,7 @@ long int SubtitleItem::timeMSec(std::string value)
     secs = split(t[2], ',', secs);
     seconds = atoi(secs[0].c_str());
     milliseconds = atoi(secs[1].c_str());
-    
+
     return hours * 3600000 + mins * 60000 + seconds * 1000 + milliseconds;
 }
 
