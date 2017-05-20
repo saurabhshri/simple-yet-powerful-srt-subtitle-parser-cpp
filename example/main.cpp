@@ -20,23 +20,30 @@ int main(int argc, char *argv[]) {
     for(SubtitleItem * element : sub)
     {
         myfile<<"BEGIN"<<endl;
+        myfile<<"startString : "<<element->getStartTimeString()<<endl;
         myfile<<"start : "<<element->getStartTime()<<endl;
+        myfile<<"endString : "<<element->getEndTimeString()<<endl;
         myfile<<"end : "<<element->getEndTime()<<endl;
         myfile<<"text : "<<element->getText()<<endl;
-        myfile<<"startString : "<<element->getStartTimeString()<<endl;
-        myfile<<"endString : "<<element->getEndTimeString()<<endl;
         myfile<<"justDialogue : "<<element->getDialogue()<<endl;
-        myfile<<"ignore : "<<element->getIgnoreStatus()<<endl;
-        myfile<<"speakerCount : "<<element->getSpeakerCount()<<endl;
+        myfile<<"words count : "<<element->getWordCount()<<endl;
+        myfile<<"words :";
+        std::vector<std::string> word = element->getIndividualWords();
+            for(std::string display : word)
+                myfile<<display<<", ";
+            myfile<<endl;
 
+        myfile<<"speakerCount : "<<element->getSpeakerCount()<<endl;
+        myfile<<"speakers : ";
         if(element->getSpeakerCount())
         {
             std::vector<std::string> name = element->getSpeakerNames();
             for(std::string display : name)
-                myfile<<"speakers : "<<display<<", ";
+                myfile<<display<<", ";
             myfile<<endl;
         }
 
+        myfile<<"ignore : "<<element->getIgnoreStatus()<<endl;
         myfile<<"END"<<endl<<endl;
     }
 
