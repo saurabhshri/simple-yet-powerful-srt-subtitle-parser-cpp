@@ -480,30 +480,88 @@ void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogues, bool
     {
         for(int i=0; output[i]!='\0';i++)
         {
-            int colonIndex = 0, prevSpaceIndex = 0;
+            int colonIndex = 0, nameBeginIndex = 0;
             if(output[i]==':')  //speaker found; travel back
             {
                 _speakerCount++;
                 colonIndex = i;
 
-                for(int j=i; j>0;j--)
+                int tempIndex = 0, foundEvilColon = 0, continueFlag = 0, spaceBeforeColon = 0;
+
+                if(output[i-1] == ' ')
+                    spaceBeforeColon = 2;
+
+
+
+
+                /*
+                Possible Cases :
+
+                Elon Musk: Hey Saurabh, you are pretty smart.       // First and Last Name
+                Saurabh: *_* What? Elon Musk: Yes!                  // Two names in single line
+                Saurabh : OMG OMG!                                  // Space before colon
+                Elon: LOL World: LAMAO
+                Saurabh: ._.                                        // normal
+
+                 */
+
+                for(int j=i - spaceBeforeColon; j>=0;j--)
                 {
-                    if(output[j]== ' ' || output[j]== '\n' ) //TODO: First & Last Name cnsideration
+                    if(output[j] == '.' || output[j] == '!' || output[j] == ',' || output[j] == '?' || output[j] == '\n'
+                       || output[j] == ' ' || j== 0)
                     {
-                        prevSpaceIndex = j;
+
+                        if(output[j] == '.' || output[j] == '!' || output[j] == ',' || output[j] == '?' || j == 0)
+                        {
+                            if((continueFlag && j == 0))
+                            {
+                                if(!isupper(output[j]))
+                                {
+                                    nameBeginIndex = tempIndex;
+                                    break;
+                                }
+
+                                else
+                                    tempIndex = j;
+
+                            }
+
+                            else if(j!=0)
+                                tempIndex = j + 1;
+                        }
+
+                        else if(output[j] == ' ' && isupper(output[j+1]))
+                        {
+                            tempIndex = j;
+                            continueFlag = 1;
+
+                            continue;
+                        }
+
+                        else if(output[j] == ' ' && !isupper(output[j+1] && tempIndex == 0))
+                        {
+                            _speakerCount--;
+                            foundEvilColon = 1;
+                            break;
+                        }
+
+                        nameBeginIndex = tempIndex;
                         break;
                     }
                 }
 
-                i = prevSpaceIndex; //compensating the removal and changes in index
+                if(foundEvilColon)
+                    continue;
+
+                i = nameBeginIndex; //compensating the removal and changes in index
 
                 //check if there's a space after colon i.e. A: Hello vs A:Hello
                 int removeSpace = 0;
                 if(output[colonIndex + 1]==' ')
                     removeSpace = 1;
 
-                _speaker.push_back(output.substr(prevSpaceIndex + 1, colonIndex - prevSpaceIndex - 1));
-                output.erase(prevSpaceIndex + 1, colonIndex - prevSpaceIndex + removeSpace);
+                _speaker.push_back(output.substr(nameBeginIndex, colonIndex - nameBeginIndex));
+                output.erase(nameBeginIndex, colonIndex - nameBeginIndex + removeSpace);
             }
 
         }
