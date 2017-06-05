@@ -19,7 +19,7 @@
 #include <iterator>
 
 //funtion for splitting sentences based on supplied delimiter
-std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
+inline std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
     std::stringstream ss(s);
     std::string item;
 
@@ -136,28 +136,28 @@ public:
 
 //1. SubtitleParserFactory class
 
-SubtitleParserFactory::SubtitleParserFactory(std::string fileName)
+inline SubtitleParserFactory::SubtitleParserFactory(std::string fileName)
 {
     _fileName = fileName;
 }
 
-SubtitleParser* SubtitleParserFactory::getParser()
+inline SubtitleParser* SubtitleParserFactory::getParser()
 {
     return new SubRipParser(_fileName);                 //creates and returns SubRipParser obj
 }
 
-SubtitleParserFactory::~SubtitleParserFactory(void)
+inline SubtitleParserFactory::~SubtitleParserFactory(void)
 {
 }
 
 //2. SubtitleParser class
 
-std::vector<SubtitleItem*> SubtitleParser::getSubtitles()
+inline std::vector<SubtitleItem*> SubtitleParser::getSubtitles()
 {
     return _subtitles;
 }
 
-std::string SubtitleParser::getFileData()           //returns whole read file i.e. contents of input.srt
+inline std::string SubtitleParser::getFileData()           //returns whole read file i.e. contents of input.srt
 {
     std::ifstream infile(_fileName);
     std::string allData = "";
@@ -171,22 +171,22 @@ std::string SubtitleParser::getFileData()           //returns whole read file i.
 
 }
 
-SubtitleParser::SubtitleParser(void)
+inline SubtitleParser::SubtitleParser(void)
 {
 
 }
 
-SubtitleParser::~SubtitleParser(void)
+inline SubtitleParser::~SubtitleParser(void)
 {
 }
 
 //3. SubRipParser class
 
-SubRipParser::SubRipParser(void)
+inline SubRipParser::SubRipParser(void)
 {
 }
 
-void SubRipParser::parse(std::string fileName)      //srt parser
+inline void SubRipParser::parse(std::string fileName)      //srt parser
 {
 
     std::ifstream infile(fileName);
@@ -247,13 +247,13 @@ void SubRipParser::parse(std::string fileName)      //srt parser
     }
 }
 
-SubRipParser::SubRipParser(std::string fileName)
+inline SubRipParser::SubRipParser(std::string fileName)
 {
     _fileName = fileName;
     parse(fileName);
 }
 
-SubRipParser::~SubRipParser(void)
+inline SubRipParser::~SubRipParser(void)
 {
     for(int i=0;i != _subtitles.size();++i)
     {
@@ -264,11 +264,11 @@ SubRipParser::~SubRipParser(void)
 
 //4. SubtitleItem class
 
-SubtitleItem::SubtitleItem(void)
+inline SubtitleItem::SubtitleItem(void)
 {
 }
 
-SubtitleItem::SubtitleItem(int subNo, std::string startTime,std::string endTime, std::string text, bool ignore,
+inline SubtitleItem::SubtitleItem(int subNo, std::string startTime,std::string endTime, std::string text, bool ignore,
                            std::string justDialogue, int speakerCount, int nonDialogueCount,
                            int styleTagCount, int wordCount, std::vector<std::string> speaker, std::vector<std::string> nonDialogue,
                            std::vector<std::string> styleTags, std::vector<std::string> word)
@@ -294,7 +294,7 @@ SubtitleItem::SubtitleItem(int subNo, std::string startTime,std::string endTime,
     extractInfo();
 }
 
-long int SubtitleItem::timeMSec(std::string value)
+inline long int SubtitleItem::timeMSec(std::string value)
 {
     std::vector<std::string> t, secs;
     int hours, mins, seconds, milliseconds;
@@ -310,47 +310,47 @@ long int SubtitleItem::timeMSec(std::string value)
     return hours * 3600000 + mins * 60000 + seconds * 1000 + milliseconds;
 }
 
-long int SubtitleItem::getStartTime() const
+inline long int SubtitleItem::getStartTime() const
 {
     return _startTime;
 }
-long int SubtitleItem::getEndTime() const
+inline long int SubtitleItem::getEndTime() const
 {
     return _endTime;
 }
 
-std::string SubtitleItem::getText() const
+inline std::string SubtitleItem::getText() const
 {
     return _text;
 }
 
-void SubtitleItem::setStartTime(long int startTime)
+inline void SubtitleItem::setStartTime(long int startTime)
 {
     _startTime = startTime;
 }
-void SubtitleItem::setEndTime(long int endTime)
+inline void SubtitleItem::setEndTime(long int endTime)
 {
     _endTime = endTime;
 }
-void SubtitleItem::setText(std::string text)
+inline void SubtitleItem::setText(std::string text)
 {
     _text = text;
 }
-int SubtitleItem::getSubNo() const
+inline int SubtitleItem::getSubNo() const
 {
     return _subNo;
 }
-std::string SubtitleItem::getStartTimeString() const
+inline std::string SubtitleItem::getStartTimeString() const
 {
     return _startTimeString;
 }
 
-std::string SubtitleItem::getEndTimeString() const
+inline std::string SubtitleItem::getEndTimeString() const
 {
     return _endTimeString;
 }
 
-bool SubtitleItem::getIgnoreStatus() const
+inline bool SubtitleItem::getIgnoreStatus() const
 {
     if(_ignore)
         return true;
@@ -360,7 +360,7 @@ bool SubtitleItem::getIgnoreStatus() const
 
 }
 
-void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogues, bool doNotRemoveSpeakerNames)   //process subtitle
+inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogues, bool doNotRemoveSpeakerNames)   //process subtitle
 {
     std::string output = _text;
 
@@ -553,68 +553,68 @@ void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogues, bool
     }
 }
 
-std::string SubtitleItem::getDialogue(bool keepHTML, bool doNotIgnoreNonDialogues,  bool doNotRemoveSpeakerNames)
+inline std::string SubtitleItem::getDialogue(bool keepHTML, bool doNotIgnoreNonDialogues,  bool doNotRemoveSpeakerNames)
 {
     if(_justDialogue.empty())
         extractInfo(keepHTML, doNotIgnoreNonDialogues, doNotRemoveSpeakerNames);
 
     return _justDialogue;
 }
-int SubtitleItem::getSpeakerCount() const
+inline int SubtitleItem::getSpeakerCount() const
 {
     return _speakerCount;
 }
-int SubtitleItem::getNonDialogueCount() const
+inline int SubtitleItem::getNonDialogueCount() const
 {
     return _nonDialogueCount;
 }
-int SubtitleItem::getStyleTagCount() const
+inline int SubtitleItem::getStyleTagCount() const
 {
     return _styleTagCount;
 }
-int SubtitleItem::getWordCount() const
+inline int SubtitleItem::getWordCount() const
 {
     return _wordCount;
 }
-std::vector<std::string> SubtitleItem::getSpeakerNames()
+inline std::vector<std::string> SubtitleItem::getSpeakerNames()
 {
     return _speaker;
 }
-std::vector<std::string> SubtitleItem::getNonDialogueWords()
+inline std::vector<std::string> SubtitleItem::getNonDialogueWords()
 {
     return _nonDialogue;
 }
-std::vector<std::string> SubtitleItem::getIndividualWords()
+inline std::vector<std::string> SubtitleItem::getIndividualWords()
 {
     return _word;
 }
-std::vector<std::string> SubtitleItem::getStyleTags()
+inline std::vector<std::string> SubtitleItem::getStyleTags()
 {
     return _styleTag;
 }
-SubtitleItem::~SubtitleItem(void)
+inline SubtitleItem::~SubtitleItem(void)
 {
 
 }
 
 //5. SubtitleWordclass
 
-SubtitleWord::SubtitleWord(void)
+inline SubtitleWord::SubtitleWord(void)
 {
     _text = "";
 }
 
-SubtitleWord::SubtitleWord(std::string text)
+inline SubtitleWord::SubtitleWord(std::string text)
 {
     _text = text;
 }
 
-std::string SubtitleWord::getText() const
+inline std::string SubtitleWord::getText() const
 {
     return _text;
 }
 
-SubtitleWord::~SubtitleWord(void)
+inline SubtitleWord::~SubtitleWord(void)
 {
 }
 
