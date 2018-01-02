@@ -400,10 +400,10 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
             {
                 if(countP!=0)
                 {
-                    if(c != '>')
+                    if(c != '>'){
                         tag += c;
                         c = '~';
-
+                    }
                     else if(c == '>')
                     {
                         tag += '>';
@@ -439,10 +439,10 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
             {
                 if(countP!=0)
                 {
-                    if(c != ')')
+                    if(c != ')'){
                         tag += c;
                         c = '~';
-
+                    }
                     else if(c == ')')
                     {
                         tag += '>';
@@ -659,3 +659,4 @@ inline SubtitleWord::~SubtitleWord(void)
 
 
 #endif //SRTPARSER_H
+
