@@ -430,7 +430,7 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
 
             if(c=='(')
             {
-                tag += '<';
+                tag += '(';
                 countP++;
                 c = '~';
             }
