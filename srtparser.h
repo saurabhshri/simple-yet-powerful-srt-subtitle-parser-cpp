@@ -383,13 +383,6 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
     //stripping HTML tags
     if(!keepHTML)
     {
-        /*
-         * TODO : Before erasing, extract the words.
-         * std::vector<std::string> getStyleTags();
-         * int getStyleTagCount() const;
-         * std::vector<std::string> _styleTag;
-         * int _styleTagCount;
-         */
 
         int countP = 0;
         for(char& c : output) // replacing <...> with ~~~~
@@ -399,7 +392,7 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
             if(c=='<')
             {
                 countP++;
-                tag += '<'
+                tag += '<';
                 c = '~';
             }
 
@@ -598,12 +591,12 @@ inline int SubtitleItem::getSpeakerCount() const
 }
 inline int SubtitleItem::getNonDialogueCount() const
 {
-    _nonDialogueCount = _nonDialogue.size()
+    _nonDialogueCount = _nonDialogue.size();
     return _nonDialogueCount;
 }
 inline int SubtitleItem::getStyleTagCount() const
 {
-    _styleTagCount = _styleTag.size()
+    _styleTagCount = _styleTag.size();
     return _styleTagCount;
 }
 inline int SubtitleItem::getWordCount() const
