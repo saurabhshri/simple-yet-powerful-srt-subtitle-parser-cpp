@@ -659,4 +659,3 @@ inline SubtitleWord::~SubtitleWord(void)
 
 
 #endif //SRTPARSER_H
-
