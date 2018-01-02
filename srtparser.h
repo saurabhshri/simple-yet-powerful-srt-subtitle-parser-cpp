@@ -91,7 +91,8 @@ public:
     std::vector<std::string> getSpeakerNames();  //return string vector of speaker names
     std::vector<std::string> getNonDialogueWords(); //return string vector of non dialogue words
     std::vector<std::string> getStyleTags();    //return string vector of style tags
-
+    std::vector<std::string> _nonDialogue;
+    std::vector<std::string> _styleTag;
 
     void setStartTime(long int startTime);  //set starting time
     void setEndTime(long int endTime);      //set ending time
@@ -393,9 +394,12 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
         int countP = 0;
         for(char& c : output) // replacing <...> with ~~~~
         {
+            string tag;
+
             if(c=='<')
             {
                 countP++;
+                tag += '<'
                 c = '~';
             }
 
@@ -404,16 +408,22 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
                 if(countP!=0)
                 {
                     if(c != '>')
+                        tag += c;
                         c = '~';
 
                     else if(c == '>')
                     {
+                        tag += '>';
                         c = '~';
                         countP--;
                     }
                 }
             }
+
+            _styleTag.push_back(tag);
         }
+
+
     }
 
     //stripping non dialogue data e.g. (applause)
@@ -431,8 +441,11 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
         int countP = 0;
         for(char& c : output)   // replacing (...) with ~~~~
         {
+            string tag;
+
             if(c=='(')
             {
+                tag += '<';
                 countP++;
                 c = '~';
             }
@@ -442,15 +455,19 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
                 if(countP!=0)
                 {
                     if(c != ')')
+                        tag += c;
                         c = '~';
 
                     else if(c == ')')
                     {
+                        tag += '>';
                         c = '~';
                         countP--;
                     }
                 }
             }
+
+           _nonDialogue.push_back(tag);
         }
     }
 
@@ -581,10 +598,12 @@ inline int SubtitleItem::getSpeakerCount() const
 }
 inline int SubtitleItem::getNonDialogueCount() const
 {
+    _nonDialogueCount = _nonDialogue.size()
     return _nonDialogueCount;
 }
 inline int SubtitleItem::getStyleTagCount() const
 {
+    _styleTagCount = _styleTag.size()
     return _styleTagCount;
 }
 inline int SubtitleItem::getWordCount() const
