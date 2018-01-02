@@ -583,12 +583,12 @@ inline int SubtitleItem::getSpeakerCount() const
 }
 inline int SubtitleItem::getNonDialogueCount() const
 {
-    _nonDialogueCount = _nonDialogue.size()
+    _nonDialogueCount = _nonDialogue.size();
     return _nonDialogueCount;
 }
 inline int SubtitleItem::getStyleTagCount() const
 {
-    _styleTagCount = _styleTag.size()
+    _styleTagCount = _styleTag.size();
     return _styleTagCount;
 }
 inline int SubtitleItem::getWordCount() const
