@@ -423,14 +423,6 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
 
     if(!doNotIgnoreNonDialogues)
     {
-        /*
-         * TODO : Before erasing, extract the words.
-         * std::vector<std::string> getNonDialogueWords();
-         * int getNonDialogueCount() const;
-         * std::vector<std::string> _nonDialogue;
-         * int _nonDialogueCount;
-         */
-
         int countP = 0;
         for(char& c : output)   // replacing (...) with ~~~~
         {
