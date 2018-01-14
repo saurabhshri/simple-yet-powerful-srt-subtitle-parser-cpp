@@ -398,8 +398,13 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
                 if(countP!=0)
                 {
                     if(c != '>'){
-                        tag += c;
-                        c = '~';
+                        if(c == '/'){
+                            ;
+                        }
+                        else{
+                            tag += c;
+                            c = '~';
+                        }    
                     }
                     else if(c == '>')
                     {
@@ -410,7 +415,6 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
                     }
                 }
             }
-            tag.erase(0,1); // to fix
             _styleTag.push_back(tag);
 
         }
