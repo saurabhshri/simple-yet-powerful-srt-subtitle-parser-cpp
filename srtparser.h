@@ -390,7 +390,6 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
             if(c=='<')
             {
                 countP++;
-                tag += '<';
                 c = '~';
             }
 
@@ -404,7 +403,6 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
                     }
                     else if(c == '>')
                     {
-                        tag += '>';
                         c = '~';
                         countP--;
                         _styleTagCount++;
@@ -412,7 +410,7 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
                     }
                 }
             }
-
+            tag.erase(0,1); // to fix
             _styleTag.push_back(tag);
 
         }
@@ -430,7 +428,6 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
 
             if(c=='(')
             {
-                tag += '(';
                 countP++;
                 c = '~';
             }
@@ -445,7 +442,6 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
                     }
                     else if(c == ')')
                     {
-                        tag += ')';
                         c = '~';
                         countP--;
                         _nonDialogueCount++;
