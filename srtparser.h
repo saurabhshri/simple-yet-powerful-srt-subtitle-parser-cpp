@@ -407,10 +407,13 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
                         countP--;
                         _styleTagCount++;
                         if(tag[0] == '/'){
-                            tag.erase(0,1);
+                            tag=""
+
                         }
-                        _styleTag.push_back(tag);
-                        tag="";
+                        else{
+                            _nonDialogue.push_back(tag);
+                            tag="";
+                        }
                     }
                 }
             }
@@ -424,7 +427,7 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
     if(!doNotIgnoreNonDialogues)
     {
         int countP = 0;
-        std::string action;
+        std::string tag;
         for(char& c : output)   // replacing (...) with ~~~~
         {
 
@@ -439,7 +442,7 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
                 if(countP!=0)
                 {
                     if(c != ')'){
-                        action.push_back(c);
+                        tag.push_back(c);
                         c = '~';
                     }
                     else if(c == ')')
@@ -447,7 +450,7 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
                         c = '~';
                         countP--;
                         _nonDialogueCount++;
-                        _nonDialogue.push_back(action);
+                        _nonDialogue.push_back(tag);
                         tag="";
                     }
                 }
