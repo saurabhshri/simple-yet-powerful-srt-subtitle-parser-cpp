@@ -411,7 +411,7 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
 
                         }
                         else{
-                            _nonDialogue.push_back(tag);
+                            _styleTag.push_back(tag);
                             tag="";
                         }
                     }
