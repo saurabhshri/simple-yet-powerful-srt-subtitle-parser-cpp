@@ -91,7 +91,6 @@ public:
     std::vector<std::string> getSpeakerNames();  //return string vector of speaker names
     std::vector<std::string> getNonDialogueWords(); //return string vector of non dialogue words
     std::vector<std::string> getStyleTags();    //return string vector of style tags
-
     void setStartTime(long int startTime);  //set starting time
     void setEndTime(long int endTime);      //set ending time
     void setText(std::string text);         //set subtitle text
@@ -405,21 +404,15 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
                     {
                         c = '~';
                         countP--;
-                        _styleTagCount++;
-                        if(tag[0] == '/'){
-                            tag="";
-
-                        }
-                        else{
+                        if(tag[0] != '/'){
+                            _styleTagCount++;
                             _styleTag.push_back(tag);
-                            tag="";
                         }
+                            tag="";
                     }
                 }
             }
-
         }
-
     }
 
     //stripping non dialogue data e.g. (applause)
@@ -430,13 +423,11 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
         std::string action;
         for(char& c : output)   // replacing (...) with ~~~~
         {
-
             if(c=='(')
             {
                 countP++;
                 c = '~';
             }
-
             else
             {
                 if(countP!=0)
