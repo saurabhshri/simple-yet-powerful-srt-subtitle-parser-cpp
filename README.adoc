@@ -190,13 +190,6 @@ _E.g.: ``int styleTagCount = sub->getStyleTagCount();``_
 
 _E.g.: ``std::vector<std::string> styleTags = sub->getStyleTags();``_
 
-| SubtitleWord
-| std::string
-| `getText()`
-| Returns the subtitle text as present in .srt file.
-
-_E.g.: ``std::string text = sub->getText();``_
-
 |===
 
 ## Examples
