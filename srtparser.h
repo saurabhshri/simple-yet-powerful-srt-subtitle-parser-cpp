@@ -91,8 +91,6 @@ public:
     std::vector<std::string> getSpeakerNames();  //return string vector of speaker names
     std::vector<std::string> getNonDialogueWords(); //return string vector of non dialogue words
     std::vector<std::string> getStyleTags();    //return string vector of style tags
-
-
     void setStartTime(long int startTime);  //set starting time
     void setEndTime(long int endTime);      //set ending time
     void setText(std::string text);         //set subtitle text
@@ -382,17 +380,12 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
     //stripping HTML tags
     if(!keepHTML)
     {
-        /*
-         * TODO : Before erasing, extract the words.
-         * std::vector<std::string> getStyleTags();
-         * int getStyleTagCount() const;
-         * std::vector<std::string> _styleTag;
-         * int _styleTagCount;
-         */
 
         int countP = 0;
+        std::string tag;
         for(char& c : output) // replacing <...> with ~~~~
         {
+
             if(c=='<')
             {
                 countP++;
@@ -403,13 +396,19 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
             {
                 if(countP!=0)
                 {
-                    if(c != '>')
-                        c = '~';
-
+                    if(c != '>'){
+                            tag += c;
+                            c = '~';
+                    }
                     else if(c == '>')
                     {
                         c = '~';
                         countP--;
+                        if(tag[0] != '/'){
+                            _styleTagCount++;
+                            _styleTag.push_back(tag);
+                        }
+                            tag="";
                     }
                 }
             }
@@ -420,15 +419,8 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
 
     if(!doNotIgnoreNonDialogues)
     {
-        /*
-         * TODO : Before erasing, extract the words.
-         * std::vector<std::string> getNonDialogueWords();
-         * int getNonDialogueCount() const;
-         * std::vector<std::string> _nonDialogue;
-         * int _nonDialogueCount;
-         */
-
         int countP = 0;
+        std::string action;
         for(char& c : output)   // replacing (...) with ~~~~
         {
             if(c=='(')
@@ -436,18 +428,21 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
                 countP++;
                 c = '~';
             }
-
             else
             {
                 if(countP!=0)
                 {
-                    if(c != ')')
+                    if(c != ')'){
+                        action.push_back(c);
                         c = '~';
-
+                    }
                     else if(c == ')')
                     {
                         c = '~';
                         countP--;
+                        _nonDialogueCount++;
+                        _nonDialogue.push_back(action);
+                        action="";
                     }
                 }
             }
