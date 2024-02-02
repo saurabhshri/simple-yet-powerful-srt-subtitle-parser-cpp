@@ -550,7 +550,7 @@ inline void SubtitleItem::extractInfo(bool keepHTML, bool doNotIgnoreNonDialogue
     unique_copy (output.begin(), output.end(), std::back_insert_iterator<std::string>(_justDialogue),
                  [](char a,char b)
                  {
-                     return isspace(a) && isspace(b);
+                     return a>0 && b>0 && isspace(a) && isspace(b);
                  });
 
     // trimming whitespaces
